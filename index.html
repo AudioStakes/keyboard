@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <title>ローマ字入力 練習キーボード</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --key: #334155;
+      --key-active: #22c55e;
+      --key-wrong: #ef4444;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --ok: #86efac;
+      --danger: #fca5a5;
+      --shadow: rgba(0,0,0,.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #1e293b 0%, var(--bg) 55%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100dvh;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    .app {
+      height: 100dvh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 8px;
+      padding: 8px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .title {
+      font-size: clamp(16px, 4vw, 22px);
+      font-weight: 800;
+      letter-spacing: .02em;
+      white-space: nowrap;
+    }
+
+    .stats {
+      display: flex;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .pill {
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      box-shadow: 0 4px 12px var(--shadow) inset;
+    }
+
+    main {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      gap: 7px;
+    }
+
+    .card {
+      background: rgba(17,24,39,.82);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+      box-shadow: 0 10px 26px var(--shadow);
+      padding: 9px;
+    }
+
+    .prompt-label {
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 3px;
+    }
+
+    .japanese {
+      font-size: clamp(24px, 8.5vw, 44px);
+      line-height: 1;
+      font-weight: 900;
+      text-align: center;
+      letter-spacing: .04em;
+      padding: 3px 0;
+    }
+
+    .romaji-target {
+      text-align: center;
+      font-size: clamp(13px, 4vw, 20px);
+      letter-spacing: .12em;
+      color: var(--muted);
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .typed {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(19px, 6vw, 32px);
+      letter-spacing: .12em;
+      font-weight: 800;
+      border-radius: 16px;
+      background: rgba(15,23,42,.8);
+      border: 1px solid rgba(255,255,255,.08);
+      overflow-wrap: anywhere;
+      text-align: center;
+    }
+
+    .typed .done { color: var(--ok); }
+    .typed .current { color: var(--accent); text-decoration: underline; text-underline-offset: 7px; }
+    .typed .remaining { color: rgba(248,250,252,.32); }
+
+    .message {
+      text-align: center;
+      min-height: 18px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .message.ok { color: var(--ok); }
+    .message.bad { color: var(--danger); }
+
+    .keyboard-wrap {
+      display: grid;
+      align-items: stretch;
+      min-height: 0;
+    }
+
+    .keyboard {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: stretch;
+      gap: 8px;
+      padding: 10px;
+      border-radius: 24px;
+      background: rgba(2,6,23,.5);
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: 0 -10px 30px var(--shadow);
+    }
+
+    .row {
+      display: grid;
+      gap: 7px;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .row-10 { grid-template-columns: repeat(10, 1fr); }
+    .row-9 {
+      grid-template-columns: .5fr repeat(9, 1fr) .5fr;
+    }
+    .row-7 {
+      grid-template-columns: 1.2fr repeat(7, 1fr) 1.2fr;
+    }
+
+    .spacer { pointer-events: none; }
+
+    button.key {
+      appearance: none;
+      border: 0;
+      border-radius: 16px;
+      min-height: 0;
+      height: 100%;
+      background: linear-gradient(180deg, #475569, var(--key));
+      color: var(--text);
+      font-size: clamp(24px, 8.2vw, 42px);
+      font-weight: 900;
+      box-shadow: 0 5px 0 rgba(15,23,42,.9), 0 10px 18px rgba(0,0,0,.25);
+      touch-action: manipulation;
+    }
+
+    button.key:active,
+    button.key.active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 rgba(15,23,42,.9), 0 4px 10px rgba(0,0,0,.25);
+      background: linear-gradient(180deg, #4ade80, var(--key-active));
+      color: #052e16;
+    }
+
+    button.key.wrong {
+      background: linear-gradient(180deg, #f87171, var(--key-wrong));
+      color: #450a0a;
+    }
+
+    button.special {
+      font-size: clamp(12px, 3.4vw, 16px);
+      letter-spacing: .02em;
+      color: #dbeafe;
+      background: linear-gradient(180deg, #334155, #1e293b);
+    }
+
+    button.space {
+      font-size: clamp(14px, 4vw, 18px);
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 7px;
+    }
+
+    .control-btn {
+      appearance: none;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 14px;
+      padding: 8px 6px;
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .control-btn.primary {
+      background: linear-gradient(180deg, #38bdf8, #0284c7);
+      color: #082f49;
+    }
+
+    @media (orientation: landscape) {
+      .app {
+        grid-template-rows: auto 1fr;
+      }
+
+      main {
+        grid-template-columns: minmax(240px, .6fr) 1fr;
+        grid-template-rows: auto 1fr auto;
+        align-items: stretch;
+      }
+
+      .keyboard-wrap {
+        grid-row: 1 / span 3;
+        grid-column: 2;
+      }
+
+      .controls {
+        grid-column: 1;
+      }
+
+      button.key {
+        font-size: clamp(20px, 5vh, 34px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="title">ローマ字入力れんしゅう</div>
+      <div class="stats">
+        <div class="pill">正解 <span id="okCount">0</span></div>
+        <div class="pill">ミス <span id="missCount">0</span></div>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <div class="prompt-label">お題</div>
+        <div class="japanese" id="japanese">さくら</div>
+        <div class="romaji-target" id="romajiTarget">sakura</div>
+      </section>
+
+      <section>
+        <div class="typed card" id="typed"></div>
+        <div class="message" id="message">下のキーボードで入力してね</div>
+      </section>
+
+      <section class="keyboard-wrap">
+        <div class="keyboard" aria-label="ローマ字キーボード">
+          <div class="row row-10" id="row1"></div>
+          <div class="row row-9" id="row2"></div>
+          <div class="row row-7" id="row3"></div>
+        </div>
+      </section>
+
+      <section class="controls">
+        <button class="control-btn" id="hintBtn">ヒント</button>
+        <button class="control-btn primary" id="nextBtn">次のお題</button>
+        <button class="control-btn" id="clearBtn">消す</button>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const lessons = [
+      { jp: "さくら", roma: "sakura" },
+      { jp: "ねこ", roma: "neko" },
+      { jp: "いぬ", roma: "inu" },
+      { jp: "すし", roma: "sushi" },
+      { jp: "みず", roma: "mizu" },
+      { jp: "やま", roma: "yama" },
+      { jp: "そら", roma: "sora" },
+      { jp: "ともだち", roma: "tomodachi" },
+      { jp: "ありがとう", roma: "arigatou" },
+      { jp: "おはよう", roma: "ohayou" },
+      { jp: "こんにちは", roma: "konnichiwa" },
+      { jp: "がっこう", roma: "gakkou" },
+      { jp: "でんしゃ", roma: "densha" },
+      { jp: "きょう", roma: "kyou" },
+      { jp: "りょこう", roma: "ryokou" },
+      { jp: "ちゃわん", roma: "chawan" },
+      { jp: "しゃしん", roma: "shashin" },
+      { jp: "にほんご", roma: "nihongo" }
+    ];
+
+    const rows = {
+      row1: ["q","w","e","r","t","y","u","i","o","p"],
+      row2: ["spacer","a","s","d","f","g","h","j","k","l","spacer"],
+      row3: ["back","z","x","c","v","b","n","m","enter"],
+    };
+
+    const state = {
+      lessonIndex: 0,
+      typed: "",
+      ok: 0,
+      miss: 0,
+      locked: false
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const japanese = $("japanese");
+    const romajiTarget = $("romajiTarget");
+    const typed = $("typed");
+    const message = $("message");
+    const okCount = $("okCount");
+    const missCount = $("missCount");
+
+    function makeKey(label) {
+      if (label === "spacer") {
+        const div = document.createElement("div");
+        div.className = "spacer";
+        return div;
+      }
+
+      const btn = document.createElement("button");
+      btn.className = "key";
+      btn.type = "button";
+      btn.dataset.key = label;
+
+      const names = {
+        back: "⌫",
+        enter: "次へ",
+        space: "space",
+        clear: "消す",
+        hint: "ヒント"
+      };
+
+      btn.textContent = names[label] || label;
+      if (["back", "enter", "space", "clear", "hint"].includes(label)) {
+        btn.classList.add("special");
+      }
+
+      btn.addEventListener("pointerdown", () => pressKey(label, btn));
+      return btn;
+    }
+
+    function buildKeyboard() {
+      Object.entries(rows).forEach(([rowId, keys]) => {
+        const row = $(rowId);
+        keys.forEach(key => row.appendChild(makeKey(key)));
+      });
+    }
+
+    function currentLesson() {
+      return lessons[state.lessonIndex];
+    }
+
+    function render() {
+      const lesson = currentLesson();
+      japanese.textContent = lesson.jp;
+      romajiTarget.textContent = lesson.roma;
+      okCount.textContent = state.ok;
+      missCount.textContent = state.miss;
+
+      const done = lesson.roma.slice(0, state.typed.length);
+      const current = lesson.roma.slice(state.typed.length, state.typed.length + 1);
+      const remaining = lesson.roma.slice(state.typed.length + 1);
+
+      typed.innerHTML = `
+        <span class="done">${escapeHtml(done)}</span>
+        <span class="current">${escapeHtml(current)}</span>
+        <span class="remaining">${escapeHtml(remaining)}</span>
+      `;
+
+      highlightNextKey();
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>'"]/g, ch => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "'": "&#39;",
+        '"': "&quot;"
+      }[ch]));
+    }
+
+    function flash(btn, className) {
+      if (!btn) return;
+      btn.classList.add(className);
+      setTimeout(() => btn.classList.remove(className), 180);
+    }
+
+    function pressKey(key, btn) {
+      if (state.locked && key !== "enter") return;
+
+      if (key === "back") {
+        state.typed = state.typed.slice(0, -1);
+        setMessage("1文字戻しました", "");
+        render();
+        return;
+      }
+
+      if (key === "clear") {
+        clearTyped();
+        return;
+      }
+
+      if (key === "hint") {
+        showHint();
+        return;
+      }
+
+      if (key === "enter") {
+        nextLesson();
+        return;
+      }
+
+
+      const lesson = currentLesson();
+      const expected = lesson.roma[state.typed.length];
+
+      if (key === expected) {
+        state.typed += key;
+        flash(btn, "active");
+        setMessage("いい感じ！", "ok");
+
+        if (state.typed === lesson.roma) {
+          state.ok += 1;
+          state.locked = true;
+          setMessage("正解！「次のお題」で進もう", "ok");
+        }
+      } else {
+        state.miss += 1;
+        flash(btn, "wrong");
+        setMessage(`次は「${expected}」だよ`, "bad");
+        vibrate();
+      }
+
+      render();
+    }
+
+    function setMessage(text, type) {
+      message.textContent = text;
+      message.className = `message ${type || ""}`;
+    }
+
+    function clearTyped() {
+      state.typed = "";
+      state.locked = false;
+      setMessage("入力を消しました", "");
+      render();
+    }
+
+    function showHint() {
+      const lesson = currentLesson();
+      const next = lesson.roma[state.typed.length];
+      setMessage(next ? `次に押すキーは「${next}」` : "もう入力できてるよ！", next ? "" : "ok");
+      highlightNextKey(true);
+    }
+
+    function nextLesson() {
+      state.lessonIndex = (state.lessonIndex + 1) % lessons.length;
+      state.typed = "";
+      state.locked = false;
+      setMessage("次のお題です", "");
+      render();
+    }
+
+    function highlightNextKey(strong = false) {
+      document.querySelectorAll(".key").forEach(k => k.classList.remove("active"));
+      const next = currentLesson().roma[state.typed.length];
+      if (!next) return;
+      const btn = document.querySelector(`[data-key="${CSS.escape(next)}"]`);
+      if (btn && strong) {
+        btn.classList.add("active");
+        setTimeout(() => btn.classList.remove("active"), 650);
+      }
+    }
+
+    function vibrate() {
+      if (navigator.vibrate) navigator.vibrate(35);
+    }
+
+    document.addEventListener("keydown", (event) => {
+      const key = event.key.toLowerCase();
+      if (/^[a-z\-']$/.test(key)) pressKey(key, document.querySelector(`[data-key="${CSS.escape(key)}"]`));
+      if (event.key === "Backspace") pressKey("back");
+      if (event.key === "Enter") pressKey("enter");
+    });
+
+    $("hintBtn").addEventListener("click", showHint);
+    $("nextBtn").addEventListener("click", nextLesson);
+    $("clearBtn").addEventListener("click", clearTyped);
+
+    buildKeyboard();
+    render();
+  </script>
+</body>
+</html>
+git status
+git add index.html
+git commit -m "Add romaji keyboard practice app"
+git push

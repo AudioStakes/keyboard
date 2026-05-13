@@ -43,9 +43,9 @@
     .app {
       height: 100dvh;
       display: grid;
-      grid-template-rows: auto 1fr;
-      gap: 6px;
-      padding: 6px;
+      grid-template-rows: 1fr;
+      gap: 0;
+      padding: 0;
     }
 
     header {
@@ -56,15 +56,15 @@
       min-height: 0;
       display: grid;
       grid-template-rows: auto minmax(0, 1fr);
-      gap: 6px;
+      gap: 0;
     }
 
     .card {
-      background: rgba(17,24,39,.9);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 16px;
+      background: rgba(17,24,39,.96);
+      border: 0;
+      border-radius: 0;
       box-shadow: 0 8px 20px var(--shadow);
-      padding: 8px 10px;
+      padding: 7px 10px;
     }
 
     .prompt-label {
@@ -72,7 +72,7 @@
     }
 
     .japanese {
-      font-size: clamp(20px, 6vw, 34px);
+      font-size: clamp(18px, 5.4vw, 30px);
       line-height: 1;
       font-weight: 900;
       letter-spacing: .04em;
@@ -83,19 +83,35 @@
     .romaji-target {
       font-size: clamp(16px, 4.8vw, 28px);
       letter-spacing: .1em;
-      color: var(--accent);
-      font-weight: 800;
+      font-weight: 900;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      min-width: 0;
+    }
+
+    .romaji-target .done {
+      color: var(--ok);
+      opacity: .55;
+    }
+
+    .romaji-target .current {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 5px;
+    }
+
+    .romaji-target .remaining {
+      color: rgba(248,250,252,.42);
     }
 
     .prompt-line {
       display: grid;
       grid-template-columns: auto 1fr;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       min-width: 0;
+      min-height: 44px;
     }
 
     .typed,
@@ -115,17 +131,17 @@
       display: flex;
       flex-direction: column;
       justify-content: stretch;
-      gap: 8px;
-      padding: 8px;
-      border-radius: 22px;
-      background: rgba(2,6,23,.72);
-      border: 1px solid rgba(255,255,255,.08);
-      box-shadow: 0 -10px 30px var(--shadow);
+      gap: 6px;
+      padding: 6px;
+      border-radius: 0;
+      background: rgba(2,6,23,.82);
+      border: 0;
+      box-shadow: none;
     }
 
     .row {
       display: grid;
-      gap: 7px;
+      gap: 6px;
       width: 100%;
       flex: 1;
       min-height: 0;
@@ -144,12 +160,12 @@
     button.key {
       appearance: none;
       border: 0;
-      border-radius: 16px;
+      border-radius: 14px;
       min-height: 0;
       height: 100%;
       background: linear-gradient(180deg, #475569, var(--key));
       color: var(--text);
-      font-size: clamp(26px, 9vw, 48px);
+      font-size: clamp(30px, 10vw, 56px);
       font-weight: 900;
       box-shadow: 0 5px 0 rgba(15,23,42,.9), 0 10px 18px rgba(0,0,0,.25);
       touch-action: manipulation;
@@ -192,8 +208,13 @@
         grid-template-rows: auto minmax(0, 1fr);
       }
 
+      .prompt-line {
+        min-height: 38px;
+        padding: 5px 10px;
+      }
+
       button.key {
-        font-size: clamp(22px, 9vh, 44px);
+        font-size: clamp(24px, 10vh, 52px);
       }
     }
   </style>
@@ -316,19 +337,18 @@
     function render() {
       const lesson = currentLesson();
       japanese.textContent = lesson.jp;
-      romajiTarget.textContent = lesson.roma;
-      okCount.textContent = state.ok;
-      missCount.textContent = state.miss;
 
       const done = lesson.roma.slice(0, state.typed.length);
       const current = lesson.roma.slice(state.typed.length, state.typed.length + 1);
       const remaining = lesson.roma.slice(state.typed.length + 1);
 
-      typed.innerHTML = `
-        <span class="done">${escapeHtml(done)}</span>
-        <span class="current">${escapeHtml(current)}</span>
-        <span class="remaining">${escapeHtml(remaining)}</span>
+      romajiTarget.innerHTML = `
+        <span class="done">${escapeHtml(done)}</span><span class="current">${escapeHtml(current)}</span><span class="remaining">${escapeHtml(remaining)}</span>
       `;
+      okCount.textContent = state.ok;
+      missCount.textContent = state.miss;
+
+      typed.innerHTML = romajiTarget.innerHTML;
 
       highlightNextKey();
     }
@@ -386,7 +406,10 @@
         if (state.typed === lesson.roma) {
           state.ok += 1;
           state.locked = true;
-          setMessage("正解！「次のお題」で進もう", "ok");
+          setMessage("正解！次のお題へ進みます", "ok");
+          render();
+          setTimeout(nextLesson, 350);
+          return;
         }
       } else {
         state.miss += 1;

@@ -44,105 +44,64 @@
       height: 100dvh;
       display: grid;
       grid-template-rows: auto 1fr;
-      gap: 8px;
-      padding: 8px;
+      gap: 6px;
+      padding: 6px;
     }
 
     header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .title {
-      font-size: clamp(16px, 4vw, 22px);
-      font-weight: 800;
-      letter-spacing: .02em;
-      white-space: nowrap;
-    }
-
-    .stats {
-      display: flex;
-      gap: 8px;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .pill {
-      padding: 6px 9px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.08);
-      box-shadow: 0 4px 12px var(--shadow) inset;
+      display: none;
     }
 
     main {
       min-height: 0;
       display: grid;
-      grid-template-rows: auto auto minmax(0, 1fr) auto;
-      gap: 7px;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 6px;
     }
 
     .card {
-      background: rgba(17,24,39,.82);
+      background: rgba(17,24,39,.9);
       border: 1px solid rgba(255,255,255,.08);
-      border-radius: 18px;
-      box-shadow: 0 10px 26px var(--shadow);
-      padding: 9px;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px var(--shadow);
+      padding: 8px 10px;
     }
 
     .prompt-label {
-      color: var(--muted);
-      font-size: 11px;
-      margin-bottom: 3px;
+      display: none;
     }
 
     .japanese {
-      font-size: clamp(24px, 8.5vw, 44px);
+      font-size: clamp(20px, 6vw, 34px);
       line-height: 1;
       font-weight: 900;
-      text-align: center;
       letter-spacing: .04em;
-      padding: 3px 0;
+      padding: 0;
+      white-space: nowrap;
     }
 
     .romaji-target {
-      text-align: center;
-      font-size: clamp(13px, 4vw, 20px);
-      letter-spacing: .12em;
-      color: var(--muted);
-      font-weight: 700;
-      overflow-wrap: anywhere;
-    }
-
-    .typed {
-      min-height: 42px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: clamp(19px, 6vw, 32px);
-      letter-spacing: .12em;
+      font-size: clamp(16px, 4.8vw, 28px);
+      letter-spacing: .1em;
+      color: var(--accent);
       font-weight: 800;
-      border-radius: 16px;
-      background: rgba(15,23,42,.8);
-      border: 1px solid rgba(255,255,255,.08);
-      overflow-wrap: anywhere;
-      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    .typed .done { color: var(--ok); }
-    .typed .current { color: var(--accent); text-decoration: underline; text-underline-offset: 7px; }
-    .typed .remaining { color: rgba(248,250,252,.32); }
+    .prompt-line {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
 
+    .typed,
     .message {
-      text-align: center;
-      min-height: 18px;
-      font-size: 12px;
-      color: var(--muted);
+      display: none;
     }
-
-    .message.ok { color: var(--ok); }
-    .message.bad { color: var(--danger); }
 
     .keyboard-wrap {
       display: grid;
@@ -157,9 +116,9 @@
       flex-direction: column;
       justify-content: stretch;
       gap: 8px;
-      padding: 10px;
-      border-radius: 24px;
-      background: rgba(2,6,23,.5);
+      padding: 8px;
+      border-radius: 22px;
+      background: rgba(2,6,23,.72);
       border: 1px solid rgba(255,255,255,.08);
       box-shadow: 0 -10px 30px var(--shadow);
     }
@@ -190,7 +149,7 @@
       height: 100%;
       background: linear-gradient(180deg, #475569, var(--key));
       color: var(--text);
-      font-size: clamp(24px, 8.2vw, 42px);
+      font-size: clamp(26px, 9vw, 48px);
       font-weight: 900;
       box-shadow: 0 5px 0 rgba(15,23,42,.9), 0 10px 18px rgba(0,0,0,.25);
       touch-action: manipulation;
@@ -221,49 +180,20 @@
     }
 
     .controls {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 7px;
-    }
-
-    .control-btn {
-      appearance: none;
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: 14px;
-      padding: 8px 6px;
-      background: rgba(255,255,255,.08);
-      color: var(--text);
-      font-weight: 700;
-      font-size: 13px;
-    }
-
-    .control-btn.primary {
-      background: linear-gradient(180deg, #38bdf8, #0284c7);
-      color: #082f49;
+      display: none;
     }
 
     @media (orientation: landscape) {
       .app {
-        grid-template-rows: auto 1fr;
+        height: 100dvh;
       }
 
       main {
-        grid-template-columns: minmax(240px, .6fr) 1fr;
-        grid-template-rows: auto 1fr auto;
-        align-items: stretch;
-      }
-
-      .keyboard-wrap {
-        grid-row: 1 / span 3;
-        grid-column: 2;
-      }
-
-      .controls {
-        grid-column: 1;
+        grid-template-rows: auto minmax(0, 1fr);
       }
 
       button.key {
-        font-size: clamp(20px, 5vh, 34px);
+        font-size: clamp(22px, 9vh, 44px);
       }
     }
   </style>
@@ -279,13 +209,12 @@
     </header>
 
     <main>
-      <section class="card">
-        <div class="prompt-label">お題</div>
+      <section class="card prompt-line">
         <div class="japanese" id="japanese">さくら</div>
         <div class="romaji-target" id="romajiTarget">sakura</div>
       </section>
 
-      <section>
+      <section style="display:none">
         <div class="typed card" id="typed"></div>
         <div class="message" id="message">下のキーボードで入力してね</div>
       </section>
@@ -296,12 +225,6 @@
           <div class="row row-9" id="row2"></div>
           <div class="row row-7" id="row3"></div>
         </div>
-      </section>
-
-      <section class="controls">
-        <button class="control-btn" id="hintBtn">ヒント</button>
-        <button class="control-btn primary" id="nextBtn">次のお題</button>
-        <button class="control-btn" id="clearBtn">消す</button>
       </section>
     </main>
   </div>
@@ -524,16 +447,10 @@
       if (event.key === "Enter") pressKey("enter");
     });
 
-    $("hintBtn").addEventListener("click", showHint);
-    $("nextBtn").addEventListener("click", nextLesson);
-    $("clearBtn").addEventListener("click", clearTyped);
+
 
     buildKeyboard();
     render();
   </script>
 </body>
 </html>
-git status
-git add index.html
-git commit -m "Add romaji keyboard practice app"
-git push
